@@ -1,3 +1,4 @@
+import React from 'react';
 import InternetExplorer from './InternetExplorer';
 import Minesweeper from './Minesweeper';
 import ErrorBox from './ErrorBox';
@@ -16,6 +17,7 @@ import notepadLarge from 'assets/windowsIcons/327(32x32).png';
 import winamp from 'assets/windowsIcons/winamp.png';
 import paintLarge from 'assets/windowsIcons/680(32x32).png';
 import paint from 'assets/windowsIcons/680(16x16).png';
+import telegram from 'assets/windowsIcons/telegram.webp';
 
 const gen = () => {
   let id = -1;
@@ -24,17 +26,19 @@ const gen = () => {
     return id;
   };
 };
+
 const genId = gen();
 const genIndex = gen();
+
 export const defaultAppState = [
   {
     component: InternetExplorer,
     header: {
-      title: 'Internet Explorer',
+      title: 'Eliza Finance ',
       icon: iePaper,
     },
     defaultSize: {
-      width: 700,
+      width: 1500,
       height: 500,
     },
     defaultOffset: {
@@ -60,27 +64,6 @@ export const defaultAppState = [
     defaultOffset: {
       x: 180,
       y: 170,
-    },
-    resizable: false,
-    minimized: false,
-    maximized: false,
-    id: genId(),
-    zIndex: genIndex(),
-  },
-  {
-    component: Winamp,
-    header: {
-      title: 'Winamp',
-      icon: winamp,
-      invisible: true,
-    },
-    defaultSize: {
-      width: 0,
-      height: 0,
-    },
-    defaultOffset: {
-      x: 0,
-      y: 0,
     },
     resizable: false,
     minimized: false,
@@ -151,6 +134,14 @@ export const defaultIconState = [
     icon: paintLarge,
     title: 'Paint',
     component: Paint,
+    isFocus: false,
+  },
+  {
+    id: 6,
+    icon: telegram,
+    title: 'Telegram',
+    isExternalLink: true,
+    externalLink: 'https://t.me/your_channel_or_username',
     isFocus: false,
   },
 ];
@@ -294,4 +285,180 @@ export const appSettings = {
   },
 };
 
-export { InternetExplorer, Minesweeper, ErrorBox, MyComputer, Notepad, Winamp };
+export const reducer = (state, action) => {
+  switch (action.type) {
+    case 'ADD_APP':
+    case 'OPEN_APP': {
+      // Get the icon ID from either action structure
+      const iconId = action.id || (action.payload && action.payload.id);
+      if (!iconId && !action.payload) return state;
+
+      // Handle the case where payload is an appSetting directly
+      if (action.payload && action.payload.component) {
+        return {
+          ...state,
+          apps: [
+            ...state.apps,
+            {
+              ...action.payload,
+              id: state.nextAppID,
+              zIndex: state.nextZIndex,
+            },
+          ],
+          nextAppID: state.nextAppID + 1,
+          nextZIndex: state.nextZIndex + 1,
+        };
+      }
+
+      // Find the icon
+      const icon = defaultIconState.find(i => i.id === iconId);
+      if (!icon) return state;
+
+      // Handle external links
+      if (icon.isExternalLink) {
+        window.open(icon.externalLink, '_blank', 'noopener,noreferrer');
+        return state;
+      }
+
+      // Handle regular apps
+      const appSetting = appSettings[icon.title] || {
+        component: icon.component,
+        header: {
+          title: icon.title,
+          icon: icon.icon,
+        },
+        defaultSize: {
+          width: 700,
+          height: 500,
+        },
+        defaultOffset: {
+          x: 140,
+          y: 30,
+        },
+        resizable: true,
+        minimized: false,
+        maximized: window.innerWidth < 800,
+        multiInstance: true,
+      };
+
+      // Check for existing instance
+      const existingApp = state.apps.find(app => app.component === icon.component);
+      if (existingApp && !appSetting.multiInstance) {
+        return {
+          ...state,
+          apps: state.apps.map(app =>
+            app.id === existingApp.id
+              ? { ...app, minimized: false, zIndex: state.nextZIndex }
+              : app
+          ),
+          nextZIndex: state.nextZIndex + 1,
+        };
+      }
+
+      // Create new app instance
+      return {
+        ...state,
+        apps: [
+          ...state.apps,
+          {
+            ...appSetting,
+            id: state.nextAppID,
+            zIndex: state.nextZIndex,
+          },
+        ],
+        nextAppID: state.nextAppID + 1,
+        nextZIndex: state.nextZIndex + 1,
+      };
+    }
+
+    case 'MINIMIZE_APP': {
+      const appId = action.id || (action.payload && action.payload.id);
+      if (!appId) return state;
+
+      return {
+        ...state,
+        apps: state.apps.map(app =>
+          app.id === appId ? { ...app, minimized: true } : app
+        ),
+      };
+    }
+
+    case 'CLOSE_APP': {
+      const appId = action.id || (action.payload && action.payload.id);
+      if (!appId) return state;
+
+      return {
+        ...state,
+        apps: state.apps.filter(app => app.id !== appId),
+      };
+    }
+
+    case 'FOCUS_APP': {
+      const appId = action.id || (action.payload && action.payload.id);
+      if (!appId) return state;
+
+      return {
+        ...state,
+        apps: state.apps.map(app =>
+          app.id === appId
+            ? { ...app, zIndex: state.nextZIndex, minimized: false }
+            : app
+        ),
+        nextZIndex: state.nextZIndex + 1,
+      };
+    }
+
+    default:
+      return state;
+  }
+};
+
+export const DesktopIcon = React.memo(({ 
+  id,
+  icon, 
+  title, 
+  isExternalLink, 
+  externalLink, 
+  isFocus, 
+  onMouseDown, 
+  onDoubleClick 
+}) => {
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    if (isExternalLink) {
+      window.open(externalLink, '_blank', 'noopener,noreferrer');
+    } else if (onDoubleClick) {
+      onDoubleClick(id);
+    }
+  };
+
+  const handleMouseDown = (e) => {
+    e.preventDefault();
+    if (onMouseDown) {
+      onMouseDown(id);
+    }
+  };
+
+  return (
+    <div
+      className={`desktop-icon ${isFocus ? 'focused' : ''}`}
+      onMouseDown={handleMouseDown}
+      onDoubleClick={handleDoubleClick}
+    >
+      <img src={icon} alt={title} className="icon-img" />
+      <span className="icon-title">{title}</span>
+    </div>
+  );
+});
+
+DesktopIcon.displayName = 'DesktopIcon';
+
+export {
+  InternetExplorer,
+  Minesweeper,
+  ErrorBox,
+  MyComputer,
+  Notepad,
+  Winamp,
+  Paint,
+};

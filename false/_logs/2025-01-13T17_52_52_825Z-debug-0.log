@@ -1,0 +1,13 @@
+0 verbose cli /Users/pleasures/.nvm/versions/node/v23.3.0/bin/node /Users/pleasures/.nvm/versions/node/v23.3.0/bin/npm
+1 info using npm@10.9.0
+2 info using node@v23.3.0
+3 silly config load:file:/Users/pleasures/.nvm/versions/node/v23.3.0/lib/node_modules/npm/npmrc
+4 silly config load:file:/Users/pleasures/Documents/GitHub/winXP/.npmrc
+5 silly config load:file:/Users/pleasures/.npmrc
+6 silly config load:file:/Users/pleasures/.nvm/versions/node/v23.3.0/etc/npmrc
+7 verbose title npm run start
+8 verbose argv "run" "start" "--cache" "false"
+9 verbose logfile logs-max:10 dir:/Users/pleasures/Documents/GitHub/winXP/false/_logs/2025-01-13T17_52_52_825Z-
+10 verbose logfile /Users/pleasures/Documents/GitHub/winXP/false/_logs/2025-01-13T17_52_52_825Z-debug-0.log
+11 silly logfile done cleaning log files
+12 http fetch GET 200 https://registry.npmjs.org/npm 264ms

@@ -15,6 +15,7 @@ import {
   END_SELECT,
   POWER_OFF,
   CANCEL_POWER_OFF,
+  HANDLE_EXTERNAL_LINK,
 } from './constants/actions';
 import { FOCUSING, POWER_STATE } from './constants';
 import { defaultIconState, defaultAppState, appSettings } from './apps';
@@ -33,9 +34,22 @@ const initState = {
   selecting: false,
   powerState: POWER_STATE.START,
 };
+
 const reducer = (state, action = { type: '' }) => {
   switch (action.type) {
-    case ADD_APP:
+    case ADD_APP: {
+      // Check if this is an external link first
+      const icon = state.icons.find(
+        icon => icon.component === action.payload.component,
+      );
+      
+      if (icon && icon.isExternalLink) {
+        if (icon.externalLink) {
+          window.open(icon.externalLink, '_blank', 'noopener,noreferrer');
+        }
+        return state;
+      }
+
       const app = state.apps.find(
         _app => _app.component === action.payload.component,
       );
@@ -66,6 +80,7 @@ const reducer = (state, action = { type: '' }) => {
         nextZIndex: state.nextZIndex + 1,
         focusing: FOCUSING.WINDOW,
       };
+    }
     case DEL_APP:
       if (state.focusing !== FOCUSING.WINDOW) return state;
       return {
@@ -173,14 +188,47 @@ const reducer = (state, action = { type: '' }) => {
       return state;
   }
 };
+
+const Icon = ({
+  icon,
+  title,
+  component,
+  onMouseDown,
+  onDoubleClick,
+  isExternalLink,
+  externalLink,
+  isFocus,
+}) => {
+  const handleDoubleClick = () => {
+    if (isExternalLink && externalLink) {
+      window.open(externalLink, '_blank', 'noopener,noreferrer');
+    } else if (onDoubleClick) {
+      onDoubleClick(component);
+    }
+  };
+
+  return (
+    <StyledIcon
+      className={`icon ${isFocus ? 'focus' : ''}`}
+      onMouseDown={onMouseDown}
+      onDoubleClick={handleDoubleClick}
+    >
+      <img src={icon} alt={title} />
+      <span>{title}</span>
+    </StyledIcon>
+  );
+};
+
 function WinXP() {
   const [state, dispatch] = useReducer(reducer, initState);
   const ref = useRef(null);
   const mouse = useMouse(ref);
   const focusedAppId = getFocusedAppId();
+
   const onFocusApp = useCallback(id => {
     dispatch({ type: FOCUS_APP, payload: id });
   }, []);
+
   const onMaximizeWindow = useCallback(
     id => {
       if (focusedAppId === id) {
@@ -189,6 +237,7 @@ function WinXP() {
     },
     [focusedAppId],
   );
+
   const onMinimizeWindow = useCallback(
     id => {
       if (focusedAppId === id) {
@@ -197,6 +246,7 @@ function WinXP() {
     },
     [focusedAppId],
   );
+
   const onCloseApp = useCallback(
     id => {
       if (focusedAppId === id) {
@@ -205,6 +255,7 @@ function WinXP() {
     },
     [focusedAppId],
   );
+
   function onMouseDownFooterApp(id) {
     if (focusedAppId === id) {
       dispatch({ type: MINIMIZE_APP, payload: id });
@@ -212,15 +263,32 @@ function WinXP() {
       dispatch({ type: FOCUS_APP, payload: id });
     }
   }
+
   function onMouseDownIcon(id) {
     dispatch({ type: FOCUS_ICON, payload: id });
   }
+
   function onDoubleClickIcon(component) {
+    // Find the icon first
+    const icon = defaultIconState.find(icon => icon.component === component);
+  
+    // Handle external links
+    if (icon && icon.isExternalLink) {
+      if (icon.externalLink) {
+        window.open(icon.externalLink, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+  
+    // Handle regular apps
     const appSetting = Object.values(appSettings).find(
       setting => setting.component === component,
     );
-    dispatch({ type: ADD_APP, payload: appSetting });
+    if (appSetting) {
+      dispatch({ type: ADD_APP, payload: appSetting });
+    }
   }
+
   function getFocusedAppId() {
     if (state.focusing !== FOCUSING.WINDOW) return -1;
     const focusedApp = [...state.apps]
@@ -228,9 +296,11 @@ function WinXP() {
       .find(app => !app.minimized);
     return focusedApp ? focusedApp.id : -1;
   }
+
   function onMouseDownFooter() {
     dispatch({ type: FOCUS_DESKTOP });
   }
+
   function onClickMenuItem(o) {
     if (o === 'Internet')
       dispatch({ type: ADD_APP, payload: appSettings['Internet Explorer'] });
@@ -257,6 +327,7 @@ function WinXP() {
         },
       });
   }
+
   function onMouseDownDesktop(e) {
     if (e.target === e.currentTarget)
       dispatch({
@@ -264,15 +335,18 @@ function WinXP() {
         payload: { x: mouse.docX, y: mouse.docY },
       });
   }
+
   function onMouseUpDesktop(e) {
     dispatch({ type: END_SELECT });
   }
+
   const onIconsSelected = useCallback(
     iconIds => {
       dispatch({ type: SELECT_ICONS, payload: iconIds });
     },
     [dispatch],
   );
+
   function onClickModalButton(text) {
     dispatch({ type: CANCEL_POWER_OFF });
     dispatch({
@@ -280,9 +354,11 @@ function WinXP() {
       payload: appSettings.Error,
     });
   }
+
   function onModalClose() {
     dispatch({ type: CANCEL_POWER_OFF });
   }
+
   return (
     <Container
       ref={ref}
@@ -338,6 +414,7 @@ const powerOffAnimation = keyframes`
     filter: brightness(0.6) grayscale(1);
   }
 `;
+
 const animation = {
   [POWER_STATE.START]: '',
   [POWER_STATE.TURN_OFF]: powerOffAnimation,
@@ -350,11 +427,37 @@ const Container = styled.div`
   height: 100%;
   overflow: hidden;
   position: relative;
-  background: url(https://i.imgur.com/Zk6TR5k.jpg) no-repeat center center fixed;
+  background: url(https://framerusercontent.com/images/YNx3Q7T2zkmth3zQoXMryPNnM.png) no-repeat center center fixed;
   background-size: cover;
   animation: ${({ state }) => animation[state]} 5s forwards;
   *:not(input):not(textarea) {
     user-select: none;
+  }
+`;
+
+const StyledIcon = styled.div`
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+
+  img {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 5px;
+  }
+
+  span {
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+    text-align: center;
+  }
+
+  &.focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    outline: 1px dotted #fff;
   }
 `;
 
