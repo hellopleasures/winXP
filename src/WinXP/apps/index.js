@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import InternetExplorer from './InternetExplorer';
 import Minesweeper from './Minesweeper';
@@ -413,43 +414,36 @@ export const reducer = (state, action) => {
   }
 };
 
-export const DesktopIcon = React.memo(({ 
-  id,
-  icon, 
-  title, 
-  isExternalLink, 
-  externalLink, 
-  isFocus, 
-  onMouseDown, 
-  onDoubleClick 
-}) => {
-  const handleDoubleClick = (e) => {
-    e.preventDefault();
-    if (isExternalLink) {
-      window.open(externalLink, '_blank', 'noopener,noreferrer');
-    } else if (onDoubleClick) {
-      onDoubleClick(id);
-    }
-  };
+export const DesktopIcon = React.memo(
+  ({ id, icon, title, isExternalLink, externalLink, isFocus, onMouseDown, onDoubleClick }) => {
+    const handleDoubleClick = (e) => {
+      e.preventDefault();
+      if (isExternalLink) {
+        window.open(externalLink, '_blank', 'noopener,noreferrer');
+      } else if (onDoubleClick) {
+        onDoubleClick(id);
+      }
+    };
 
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    if (onMouseDown) {
-      onMouseDown(id);
-    }
-  };
+    const handleMouseDown = (e) => {
+      e.preventDefault();
+      if (onMouseDown) {
+        onMouseDown(id);
+      }
+    };
 
-  return (
-    <div
-      className={`desktop-icon ${isFocus ? 'focused' : ''}`}
-      onMouseDown={handleMouseDown}
-      onDoubleClick={handleDoubleClick}
-    >
-      <img src={icon} alt={title} className="icon-img" />
-      <span className="icon-title">{title}</span>
-    </div>
-  );
-});
+    return (
+      <div
+        className={`desktop-icon ${isFocus ? 'focused' : ''}`}
+        onMouseDown={handleMouseDown}
+        onDoubleClick={handleDoubleClick}
+      >
+        <img src={icon} alt={title} className="icon-img" />
+        <span className="icon-title">{title}</span>
+      </div>
+    );
+  }
+);
 
 DesktopIcon.displayName = 'DesktopIcon';
 

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { useReducer, useRef, useCallback } from 'react';
 import styled, { keyframes } from 'styled-components';
 import useMouse from 'react-use/lib/useMouse';
