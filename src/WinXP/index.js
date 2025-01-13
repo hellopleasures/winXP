@@ -16,7 +16,6 @@ import {
   END_SELECT,
   POWER_OFF,
   CANCEL_POWER_OFF,
-  HANDLE_EXTERNAL_LINK,
 } from './constants/actions';
 import { FOCUSING, POWER_STATE } from './constants';
 import { defaultIconState, defaultAppState, appSettings } from './apps';
@@ -190,7 +189,7 @@ const reducer = (state, action = { type: '' }) => {
   }
 };
 
-const Icon = ({
+export const Icon = ({
   icon,
   title,
   component,
