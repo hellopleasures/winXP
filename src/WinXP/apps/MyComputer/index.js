@@ -17,14 +17,10 @@ import network from 'assets/windowsIcons/693(16x16).png';
 import document from 'assets/windowsIcons/308(16x16).png';
 import folderSmall from 'assets/windowsIcons/318(16x16).png';
 import menu from 'assets/windowsIcons/358(32x32).png';
-import folder from 'assets/windowsIcons/318(48x48).png';
 import folderOpen from 'assets/windowsIcons/337(32x32).png';
-import disk from 'assets/windowsIcons/334(48x48).png';
 import cd from 'assets/windowsIcons/111(48x48).png';
 import dropdown from 'assets/windowsIcons/dropdown.png';
 import pullup from 'assets/windowsIcons/pullup.png';
-import logo from 'assets/github-logo.png';
-import mine from 'assets/minesweeper/mine-icon.png';
 import windows from 'assets/windowsIcons/windows.png';
 import defaiza from 'assets/defaiza.jpeg'
 
