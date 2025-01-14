@@ -190,6 +190,7 @@ const reducer = (state, action = { type: '' }) => {
 };
 
 export const Icon = ({
+  id,
   icon,
   title,
   component,
@@ -200,17 +201,13 @@ export const Icon = ({
   isFocus,
 }) => {
   const handleDoubleClick = () => {
-    if (isExternalLink && externalLink) {
-      window.open(externalLink, '_blank', 'noopener,noreferrer');
-    } else if (onDoubleClick) {
-      onDoubleClick(component);
-    }
+    onDoubleClick(id);
   };
 
   return (
     <StyledIcon
       className={`icon ${isFocus ? 'focus' : ''}`}
-      onMouseDown={onMouseDown}
+      onMouseDown={() => onMouseDown(id)}
       onDoubleClick={handleDoubleClick}
     >
       <img src={icon} alt={title} />
@@ -268,21 +265,25 @@ function WinXP() {
     dispatch({ type: FOCUS_ICON, payload: id });
   }
 
-  function onDoubleClickIcon(component) {
-    // Find the icon first
-    const icon = defaultIconState.find(icon => icon.component === component);
-  
+  function onDoubleClickIcon(identifier) {
+    console.log('Double clicked icon with id:', identifier);
+    
+    // Find the clicked icon
+    const icon = state.icons.find(icon => icon.id === identifier);
+    console.log('Found icon:', icon);
+    
+    if (!icon) return;
+
     // Handle external links
-    if (icon && icon.isExternalLink) {
-      if (icon.externalLink) {
-        window.open(icon.externalLink, '_blank', 'noopener,noreferrer');
-      }
+    if (icon.isExternalLink) {
+      console.log('Opening external link:', icon.externalLink);
+      window.open(icon.externalLink, '_blank', 'noopener,noreferrer');
       return;
     }
-  
+
     // Handle regular apps
     const appSetting = Object.values(appSettings).find(
-      setting => setting.component === component,
+      setting => setting.component === icon.component
     );
     if (appSetting) {
       dispatch({ type: ADD_APP, payload: appSetting });

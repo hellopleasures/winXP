@@ -53,6 +53,7 @@ function Icon({
   className,
   id,
   component,
+  isExternalLink,
   measure,
 }) {
   const ref = useRef(null);
@@ -60,7 +61,7 @@ function Icon({
     onMouseDown(id);
   }
   function _onDoubleClick() {
-    onDoubleClick(component);
+    onDoubleClick(id);
   }
   useEffect(() => {
     const target = ref.current;

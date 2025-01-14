@@ -4,6 +4,7 @@ import InternetExplorer from './InternetExplorer';
 import Minesweeper from './Minesweeper';
 import ErrorBox from './ErrorBox';
 import MyComputer from './MyComputer';
+import MyChart from './MyChart'
 import Notepad from './Notepad';
 import Winamp from './Winamp';
 import Paint from './Paint';
@@ -19,6 +20,9 @@ import winamp from 'assets/windowsIcons/winamp.png';
 import paintLarge from 'assets/windowsIcons/680(32x32).png';
 import paint from 'assets/windowsIcons/680(16x16).png';
 import telegram from 'assets/windowsIcons/telegram.webp';
+import dexscreener from 'assets/windowsIcons/dexscreener.png';
+import discord from 'assets/windowsIcons/discord.png';
+import twitter from 'assets/windowsIcons/twitter.png';
 
 const gen = () => {
   let id = -1;
@@ -39,7 +43,7 @@ export const defaultAppState = [
       icon: iePaper,
     },
     defaultSize: {
-      width: 1500,
+      width: 600,
       height: 500,
     },
     defaultOffset: {
@@ -92,13 +96,33 @@ export const defaultAppState = [
     id: genId(),
     zIndex: genIndex(),
   },
+  {
+    component: MyChart,
+    header: {
+      title: 'My Chart',
+      icon: computer,
+    },
+    defaultSize: {
+      width: 660,
+      height: 500,
+    },
+    defaultOffset: {
+      x: 560,
+      y: 250,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    id: genId(),
+    zIndex: genIndex(),
+  },
 ];
 
 export const defaultIconState = [
   {
     id: 0,
     icon: ie,
-    title: 'Internet Explorer',
+    title: 'Eliza Finance',
     component: InternetExplorer,
     isFocus: false,
   },
@@ -142,7 +166,38 @@ export const defaultIconState = [
     icon: telegram,
     title: 'Telegram',
     isExternalLink: true,
-    externalLink: 'https://t.me/your_channel_or_username',
+    externalLink: 'https://t.me/DeFAI_Portal',
+    isFocus: false,
+  },
+  {
+    id: 7,
+    icon: dexscreener,
+    title: 'DexScreener',
+    isExternalLink: true,
+    externalLink: 'https://dexscreener.com/solana/3jiwexdwzxjva2yd8aherfsrn7a97qbwmdz8i4q6mh7y',
+    isFocus: false,
+  },
+  {
+    id: 8,
+    icon: discord,
+    title: 'Discord',
+    isExternalLink: true,
+    externalLink: 'https://discord.com/invite/defai',
+    isFocus: false,
+  },
+  {
+    id: 9,
+    icon: twitter,
+    title: 'twitter',
+    isExternalLink: true,
+    externalLink: 'https://x.com/ElizadotFinance',
+    isFocus: false,
+  },
+  {
+    id: 10,
+    icon: computerLarge,
+    title: 'Chart',
+    component: MyChart,
     isFocus: false,
   },
 ];
@@ -226,6 +281,25 @@ export const appSettings = {
     maximized: window.innerWidth < 800,
     multiInstance: false,
   },
+  'My Chart': {
+    header: {
+      icon: computer,
+      title: 'My Chart',
+    },
+    component: MyChart,
+    defaultSize: {
+      width: 660,
+      height: 500,
+    },
+    defaultOffset: {
+      x: 560,
+      y: 250,
+    },
+    resizable: true,
+    minimized: false,
+    maximized: window.innerWidth < 800,
+    multiInstance: false,
+  },
   Notepad: {
     header: {
       icon: notepad,
@@ -294,24 +368,7 @@ export const reducer = (state, action) => {
       const iconId = action.id || (action.payload && action.payload.id);
       if (!iconId && !action.payload) return state;
 
-      // Handle the case where payload is an appSetting directly
-      if (action.payload && action.payload.component) {
-        return {
-          ...state,
-          apps: [
-            ...state.apps,
-            {
-              ...action.payload,
-              id: state.nextAppID,
-              zIndex: state.nextZIndex,
-            },
-          ],
-          nextAppID: state.nextAppID + 1,
-          nextZIndex: state.nextZIndex + 1,
-        };
-      }
-
-      // Find the icon
+      // Find the specific icon by ID
       const icon = defaultIconState.find(i => i.id === iconId);
       if (!icon) return state;
 
@@ -455,4 +512,5 @@ export {
   Notepad,
   Winamp,
   Paint,
+  MyChart
 };
