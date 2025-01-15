@@ -43,12 +43,12 @@ export const defaultAppState = [
       icon: iePaper,
     },
     defaultSize: {
-      width: 600,
-      height: 500,
+      width: 700,
+      height: 600,
     },
     defaultOffset: {
-      x: 130,
-      y: 20,
+      x: 200,
+      y: 40,
     },
     resizable: true,
     minimized: false,
@@ -63,12 +63,12 @@ export const defaultAppState = [
       icon: computer,
     },
     defaultSize: {
-      width: 660,
+      width: 430,
       height: 500,
     },
     defaultOffset: {
       x: 250,
-      y: 40,
+      y: 360,
     },
     resizable: true,
     minimized: false,
@@ -87,8 +87,8 @@ export const defaultAppState = [
       height: 500,
     },
     defaultOffset: {
-      x: 560,
-      y: 250,
+      x: 660,
+      y: 180,
     },
     resizable: true,
     minimized: false,

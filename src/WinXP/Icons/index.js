@@ -89,9 +89,10 @@ function Icon({
 }
 
 const IconsContainer = styled.div`
+  position: absolute;
   display: grid;
-  grid-template-columns: auto auto;
   width: 200px;
+  grid-template-columns: auto auto;
   margin-top: 20px;
   margin-left: 20px;
 `;
