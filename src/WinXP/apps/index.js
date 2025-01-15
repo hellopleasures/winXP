@@ -37,26 +37,6 @@ const genIndex = gen();
 
 export const defaultAppState = [
   {
-    component: InternetExplorer,
-    header: {
-      title: 'Eliza Finance ',
-      icon: iePaper,
-    },
-    defaultSize: {
-      width: 700,
-      height: 600,
-    },
-    defaultOffset: {
-      x: 200,
-      y: 40,
-    },
-    resizable: true,
-    minimized: false,
-    maximized: window.innerWidth < 800,
-    id: genId(),
-    zIndex: genIndex(),
-  },
-  {
     component: MyComputer,
     header: {
       title: 'My Computer',
@@ -68,7 +48,7 @@ export const defaultAppState = [
     },
     defaultOffset: {
       x: 250,
-      y: 360,
+      y: 110,
     },
     resizable: true,
     minimized: false,
@@ -103,7 +83,8 @@ export const defaultIconState = [
     id: 0,
     icon: ie,
     title: 'Eliza Finance',
-    component: InternetExplorer,
+    isExternalLink: true,
+    externalLink: 'https://my.eliza.finance/',
     isFocus: false,
   },
   {
@@ -183,25 +164,6 @@ export const defaultIconState = [
 ];
 
 export const appSettings = {
-  'Internet Explorer': {
-    header: {
-      icon: iePaper,
-      title: 'InternetExplorer',
-    },
-    component: InternetExplorer,
-    defaultSize: {
-      width: 700,
-      height: 500,
-    },
-    defaultOffset: {
-      x: 140,
-      y: 30,
-    },
-    resizable: true,
-    minimized: false,
-    maximized: window.innerWidth < 800,
-    multiInstance: true,
-  },
   Minesweeper: {
     header: {
       icon: mine,
