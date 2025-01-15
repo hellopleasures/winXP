@@ -89,13 +89,15 @@ function Icon({
 }
 
 const IconsContainer = styled.div`
-  position: absolute;
-  margin-top: 40px;
-  margin-left: 40px;
+  display: grid;
+  grid-template-columns: auto auto;
+  width: 200px;
+  margin-top: 20px;
+  margin-left: 20px;
 `;
 
 const StyledIcon = styled(Icon)`
-  width: 70px;
+  width: 80px;
   margin-bottom: 30px;
   display: flex;
   flex-direction: column;
@@ -104,7 +106,7 @@ const StyledIcon = styled(Icon)`
     width: 100%;
     font-size: 10px;
     color: white;
-    text-shadow: 0 1px 1px black;
+    text-shadow: 0 2px 2px black;
     margin-top: 5px;
     display: flex;
     justify-content: center;

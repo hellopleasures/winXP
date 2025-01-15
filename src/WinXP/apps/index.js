@@ -57,26 +57,6 @@ export const defaultAppState = [
     zIndex: genIndex(),
   },
   {
-    component: Minesweeper,
-    header: {
-      title: 'Minesweeper',
-      icon: mine,
-    },
-    defaultSize: {
-      width: 0,
-      height: 0,
-    },
-    defaultOffset: {
-      x: 180,
-      y: 170,
-    },
-    resizable: false,
-    minimized: false,
-    maximized: false,
-    id: genId(),
-    zIndex: genIndex(),
-  },
-  {
     component: MyComputer,
     header: {
       title: 'My Computer',
