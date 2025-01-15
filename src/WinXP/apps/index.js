@@ -8,7 +8,6 @@ import MyChart from './MyChart'
 import Notepad from './Notepad';
 import Winamp from './Winamp';
 import Paint from './Paint';
-import iePaper from 'assets/windowsIcons/ie-paper.png';
 import ie from 'assets/windowsIcons/ie.png';
 import mine from 'assets/minesweeper/mine-icon.png';
 import error from 'assets/windowsIcons/897(16x16).png';
