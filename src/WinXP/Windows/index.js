@@ -27,8 +27,8 @@ function Windows({
           id={app.id}
           onMouseDown={onMouseDown}
           onMouseUpClose={onClose}
-          onMouseUpMinimize={isMobile ? undefined : onMinimize}
-          onMouseUpMaximize={onMaximize}
+          onMouseUpMinimize={onMinimize}
+          onMouseUpMaximize={isMobile ? undefined : onMaximize}
           isFocus={focusedAppId === app.id}
           isMobile={isMobile}
           {...app}
@@ -66,12 +66,12 @@ const Window = memo(function({
     onMouseUpClose(id);
   }
   function _onMouseUpMinimize() {
-    if (onMouseUpMinimize) {
-      onMouseUpMinimize(id);
-    }
+    onMouseUpMinimize(id);
   }
   function _onMouseUpMaximize() {
-    if (resizable) onMouseUpMaximize(id);
+    if (resizable && onMouseUpMaximize && !isMobile) {
+      onMouseUpMaximize(id);
+    }
   }
   function onDoubleClickHeader(e) {
     if (e.target !== dragRef.current) return;
@@ -100,14 +100,22 @@ const Window = memo(function({
     resizeThreshold: 10,
   });
 
-  // Calculate window dimensions based on maximized state
+  // Calculate window dimensions based on state and device type
   let width, height, x, y;
-  if (maximized || isMobile) {
+  if (isMobile) {
+    // Mobile is always full screen
+    width = windowWidth;
+    height = windowHeight;
+    x = 0;
+    y = 0;
+  } else if (maximized) {
+    // Desktop maximized state
     width = windowWidth + 6;
     height = windowHeight - 24;
     x = -3;
     y = -3;
   } else {
+    // Default window size
     width = size.width;
     height = size.height;
     x = offset.x;
@@ -142,8 +150,8 @@ const Window = memo(function({
         <div className="app__header__title">{header.title}</div>
         <HeaderButtons
           buttons={header.buttons}
-          onMaximize={_onMouseUpMaximize}
-          onMinimize={onMouseUpMinimize ? _onMouseUpMinimize : undefined}
+          onMaximize={isMobile ? undefined : _onMouseUpMaximize}
+          onMinimize={_onMouseUpMinimize}
           onClose={_onMouseUpClose}
           maximized={maximized}
           resizable={resizable}
@@ -154,7 +162,7 @@ const Window = memo(function({
       <div className="app__content">
         {component({
           onClose: _onMouseUpClose,
-          onMinimize: onMouseUpMinimize ? _onMouseUpMinimize : undefined,
+          onMinimize: _onMouseUpMinimize,
           isFocus,
           isMobile,
           ...injectProps,
