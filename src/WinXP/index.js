@@ -428,7 +428,7 @@ const Container = styled.div`
   height: 100%;
   overflow: hidden;
   position: relative;
-  background: url(https://framerusercontent.com/images/YNx3Q7T2zkmth3zQoXMryPNnM.png) no-repeat center center fixed;
+  background: url(https://pbs.twimg.com/media/GhM6FndWQAAODH_?format=jpg&name=medium) no-repeat center center fixed;
   background-size: cover;
   animation: ${({ state }) => animation[state]} 5s forwards;
   *:not(input):not(textarea) {

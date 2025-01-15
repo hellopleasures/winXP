@@ -1,10 +1,11 @@
-import React, { useRef, memo } from 'react';
+/* eslint-disable prettier/prettier */
+import React, { useRef, memo, useCallback } from 'react';
 import useWindowSize from 'react-use/lib/useWindowSize';
 import styled from 'styled-components';
-
 import { useElementResize } from 'hooks';
 import HeaderButtons from './HeaderButtons';
 
+// Main Windows component that renders and manages multiple application windows
 function Windows({
   apps,
   onMouseDown,
@@ -24,7 +25,7 @@ function Windows({
           onMouseUpClose={onClose}
           onMouseUpMinimize={onMinimize}
           onMouseUpMaximize={onMaximize}
-          isFocus={focusedAppId === app.id} // for styledWindow
+          isFocus={focusedAppId === app.id}
           {...app}
         />
       ))}
@@ -32,6 +33,7 @@ function Windows({
   );
 }
 
+// Enhanced Window component with touch support
 const Window = memo(function({
   injectProps,
   id,
@@ -49,25 +51,15 @@ const Window = memo(function({
   isFocus,
   className,
 }) {
-  function _onMouseDown() {
-    onMouseDown(id);
-  }
-  function _onMouseUpClose() {
-    onMouseUpClose(id);
-  }
-  function _onMouseUpMinimize() {
-    onMouseUpMinimize(id);
-  }
-  function _onMouseUpMaximize() {
-    if (resizable) onMouseUpMaximize(id);
-  }
-  function onDoubleClickHeader(e) {
-    if (e.target !== dragRef.current) return;
-    _onMouseUpMaximize();
-  }
   const dragRef = useRef(null);
   const ref = useRef(null);
+  const isDraggingRef = useRef(false);
+  const startPositionRef = useRef({ x: 0, y: 0 });
+  const currentPositionRef = useRef({ x: 0, y: 0 });
+
   const { width: windowWidth, height: windowHeight } = useWindowSize();
+
+  // Handle window resizing and positioning using the original useElementResize hook
   const { offset, size } = useElementResize(ref, {
     dragRef,
     defaultOffset,
@@ -81,28 +73,133 @@ const Window = memo(function({
     resizable,
     resizeThreshold: 10,
   });
+
+  // Handle both mouse and touch start events
+  const handleDragStart = useCallback((e) => {
+    if (!dragRef.current || maximized) return;
+    
+    isDraggingRef.current = true;
+    const isTouch = e.type.startsWith('touch');
+    const pageX = isTouch ? e.touches[0].pageX : e.pageX;
+    const pageY = isTouch ? e.touches[0].pageY : e.pageY;
+    
+    startPositionRef.current = {
+      x: pageX - currentPositionRef.current.x,
+      y: pageY - currentPositionRef.current.y
+    };
+
+    onMouseDown(id);
+    
+    if (isTouch) {
+      e.preventDefault();
+    }
+  }, [id, maximized, onMouseDown]);
+
+  // Handle both mouse and touch move events
+  const handleDragMove = useCallback((e) => {
+    if (!isDraggingRef.current) return;
+    
+    const isTouch = e.type.startsWith('touch');
+    const pageX = isTouch ? e.touches[0].pageX : e.pageX;
+    const pageY = isTouch ? e.touches[0].pageY : e.pageY;
+    
+    let newX = pageX - startPositionRef.current.x;
+    let newY = pageY - startPositionRef.current.y;
+
+    // Boundary checks
+    const windowRect = ref.current.getBoundingClientRect();
+    const maxX = windowWidth - windowRect.width;
+    const maxY = windowHeight - windowRect.height;
+
+    newX = Math.max(0, Math.min(newX, maxX));
+    newY = Math.max(0, Math.min(newY, maxY));
+
+    currentPositionRef.current = { x: newX, y: newY };
+    ref.current.style.transform = `translate(${newX}px,${newY}px)`;
+    
+    if (isTouch) {
+      e.preventDefault();
+    }
+  }, [windowWidth, windowHeight]);
+
+  // Handle both mouse and touch end events
+  const handleDragEnd = useCallback(() => {
+    isDraggingRef.current = false;
+  }, []);
+
+  // Effect to add and remove event listeners
+  React.useEffect(() => {
+    const dragElement = dragRef.current;
+    if (!dragElement) return;
+
+    // Mouse events
+    dragElement.addEventListener('mousedown', handleDragStart);
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+
+    // Touch events
+    dragElement.addEventListener('touchstart', handleDragStart, { passive: false });
+    window.addEventListener('touchmove', handleDragMove, { passive: false });
+    window.addEventListener('touchend', handleDragEnd);
+    window.addEventListener('touchcancel', handleDragEnd);
+
+    return () => {
+      // Cleanup mouse events
+      dragElement.removeEventListener('mousedown', handleDragStart);
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+
+      // Cleanup touch events
+      dragElement.removeEventListener('touchstart', handleDragStart);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('touchend', handleDragEnd);
+      window.removeEventListener('touchcancel', handleDragEnd);
+    };
+  }, [handleDragStart, handleDragMove, handleDragEnd]);
+
+  // Window control handlers
+  const _onMouseUpClose = useCallback(() => {
+    onMouseUpClose(id);
+  }, [id, onMouseUpClose]);
+
+  const _onMouseUpMinimize = useCallback(() => {
+    onMouseUpMinimize(id);
+  }, [id, onMouseUpMinimize]);
+
+  const _onMouseUpMaximize = useCallback(() => {
+    if (resizable) onMouseUpMaximize(id);
+  }, [id, resizable, onMouseUpMaximize]);
+
+  const onDoubleClickHeader = useCallback((e) => {
+    if (e.target !== dragRef.current) return;
+    _onMouseUpMaximize();
+  }, [_onMouseUpMaximize]);
+
+  // Calculate window dimensions based on maximized state
   let width, height, x, y;
   if (maximized) {
     width = windowWidth + 6;
     height = windowHeight - 24;
     x = -3;
     y = -3;
+    currentPositionRef.current = { x, y };
   } else {
     width = size.width;
     height = size.height;
-    x = offset.x;
-    y = offset.y;
+    x = currentPositionRef.current.x || offset.x;
+    y = currentPositionRef.current.y || offset.y;
   }
+
   return (
     <div
       className={className}
       ref={ref}
-      onMouseDown={_onMouseDown}
       style={{
         transform: `translate(${x}px,${y}px)`,
         width: width ? `${width}px` : 'auto',
         height: height ? `${height}px` : 'auto',
         zIndex,
+        touchAction: 'none',
       }}
     >
       <div className="header__bg" />
@@ -141,6 +238,7 @@ const Window = memo(function({
   );
 });
 
+// Styled component for window appearance and behavior
 const StyledWindow = styled(Window)`
   display: ${({ show }) => (show ? 'flex' : 'none')};
   position: absolute;
